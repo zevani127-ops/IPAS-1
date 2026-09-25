@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Energi - IPAS Kelas 4 Fase B</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            yellow: '#FFD166',
+                            green: '#06D6A0',
+                            blue: '#118AB2',
+                            red: '#EF476F',
+                            dark: '#073B4C',
+                            purple: '#8338EC'
+                        }
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+            min-height: 100vh;
+        }
+        .font-kids {
+            font-family: 'Fredoka', cursive;
+        }
+        .card-bounce {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-bounce:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
+        }
+        .pulse-slow {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+        .speech-bubble {
+            position: relative;
+            background: #ffffff;
+            border-radius: 1.25rem;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 30px;
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: #ffffff transparent;
+            display: block;
+            width: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-800 pb-12">
+
+    <!-- Header App -->
+    <header class="bg-white/90 backdrop-blur border-b border-sky-100 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-300 flex items-center justify-center text-white text-2xl shadow-md font-bold">
+                    ⚡
+                </div>
+                <div>
+                    <h1 class="font-kids font-bold text-xl text-brand-dark leading-tight">Petualangan Energi</h1>
+                    <p class="text-xs text-sky-600 font-semibold">IPAS Kelas 4 - Fase B SD</p>
+                </div>
+            </div>
+
+            <!-- Voice Controls & Progress Tracker -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button id="btnVoiceToggle" onclick="toggleVoiceMaster()" class="flex items-center space-x-2 bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded-xl font-semibold text-xs sm:text-sm transition">
+                    <i id="iconVoice" class="fas fa-volume-high text-amber-600"></i>
+                    <span id="txtVoiceState" class="hidden sm:inline">Suara: ON</span>
+                </button>
+                <div id="stepIndicator" class="hidden md:flex space-x-1 text-xs font-bold text-slate-400">
+                    <span id="st1" class="px-2 py-1 bg-amber-400 text-white rounded-lg">1. Nama</span>
+                    <span id="st2" class="px-2 py-1 bg-slate-200 rounded-lg">2. Materi</span>
+                    <span id="st3" class="px-2 py-1 bg-slate-200 rounded-lg">3. Game</span>
+                    <span id="st4" class="px-2 py-1 bg-slate-200 rounded-lg">4. Skor</span>
+                    <span id="st5" class="px-2 py-1 bg-slate-200 rounded-lg">5. Sertifikat</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 mt-6">
+
+        <!-- SCREEN 1: INPUT NAMA -->
+        <section id="screen1" class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-sky-100 text-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-yellow-200/50 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-sky-200/50 rounded-full blur-2xl"></div>
+
+            <div class="relative z-10">
+                <!-- Mascot & Speech -->
+                <div class="flex flex-col items-center mb-6">
+                    <div class="text-6xl mb-2 animate-bounce">🦉</div>
+                    <div class="speech-bubble p-4 shadow-md max-w-md border border-amber-200">
+                        <p id="mascotIntroText" class="font-kids text-amber-900 text-base sm:text-lg">
+                            Halo Teman Hebat! 👋 Selamat datang di Petualangan Energi IPAS Kelas 4. Siapa namamu?
+                        </p>
+                        <button onclick="speakText('Halo Teman Hebat! Selamat datang di Petualangan Energi IPAS Kelas 4. Ketik namamu dan pilih karaktermu ya!')" class="mt-2 text-xs bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 rounded-full font-bold">
+                            🔊 Dengarkan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Form Input -->
+                <div class="max-w-md mx-auto space-y-5">
+                    <div>
+                        <label class="block text-left font-bold text-slate-700 text-sm mb-1">Nama Lengkap Siswa:</label>
+                        <input type="text" id="inputStudentName" placeholder="Contoh: Budi Santoso" class="w-full text-center font-kids text-xl px-4 py-3 rounded-2xl border-2 border-sky-300 focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none transition shadow-sm">
+                    </div>
+
+                    <!-- Pilih Avatar -->
+                    <div>
+                        <label class="block text-left font-bold text-slate-700 text-sm mb-2">Pilih Karakter Petualangmu:</label>
+                        <div class="grid grid-cols-4 gap-3" id="avatarSelector">
+                            <button type="button" onclick="selectAvatar('🚀', this)" class="avatar-btn p-3 rounded-2xl border-2 border-amber-400 bg-amber-50 text-3xl hover:scale-105 transition active">🚀</button>
+                            <button type="button" onclick="selectAvatar('🕵️‍♂️', this)" class="avatar-btn p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 text-3xl hover:scale-105 transition">🕵️‍♂️</button>
+                            <button type="button" onclick="selectAvatar('🦸‍♀️', this)" class="avatar-btn p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 text-3xl hover:scale-105 transition">🦸‍♀️</button>
+                            <button type="button" onclick="selectAvatar('🔬', this)" class="avatar-btn p-3 rounded-2xl border-2 border-slate-200 bg-slate-50 text-3xl hover:scale-105 transition">🔬</button>
+                        </div>
+                    </div>
+
+                    <button onclick="startLearning()" class="pulse-slow w-full py-4 bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-slate-900 font-kids text-xl font-bold rounded-2xl shadow-lg hover:shadow-xl transition flex items-center justify-center space-x-2">
+                        <span>Mulai Petualangan Belajar!</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: MATERI ENERGI -->
+        <section id="screen2" class="hidden space-y-6">
+            <!-- Header Materi -->
+            <div class="bg-gradient-to-r from-brand-blue to-cyan-600 rounded-3xl p-6 text-white shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <span class="bg-white/20 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Modul Pembelajaran</span>
+                    <h2 class="font-kids text-2xl sm:text-3xl font-bold mt-1">Energi & Perubahannya ⚡</h2>
+                    <p class="text-sky-100 text-sm mt-1">Dipelajari oleh: <span id="displayStudentName1" class="font-bold text-yellow-300">Siswa</span></p>
+                </div>
+                <button onclick="speakMateriSummary()" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-2.5 rounded-2xl text-sm flex items-center space-x-2 shadow">
+                    <i class="fas fa-volume-high text-lg"></i>
+                    <span>Bacakan Ringkasan</span>
+                </button>
+            </div>
+
+            <!-- Tab Navigation Materi -->
+            <div class="flex space-x-2 border-b border-sky-200 pb-2 overflow-x-auto">
+                <button onclick="switchTabMateri('tab1')" id="btnTab1" class="tab-materi-btn px-4 py-2 font-kids font-bold text-sm sm:text-base rounded-2xl bg-amber-400 text-slate-900 shadow">
+                    1. Apa itu Energi? 💡
+                </button>
+                <button onclick="switchTabMateri('tab2')" id="btnTab2" class="tab-materi-btn px-4 py-2 font-kids font-bold text-sm sm:text-base rounded-2xl bg-white text-slate-600 hover:bg-sky-100">
+                    2. Perubahan Energi 🔄
+                </button>
+                <button onclick="switchTabMateri('tab3')" id="btnTab3" class="tab-materi-btn px-4 py-2 font-kids font-bold text-sm sm:text-base rounded-2xl bg-white text-slate-600 hover:bg-sky-100">
+                    3. Hemat Energi 🌿
+                </button>
+            </div>
+
+            <!-- Tab Content 1 -->
+            <div id="tab1Content" class="materi-content bg-white rounded-3xl p-6 shadow-md border border-sky-100 space-y-4">
+                <div class="flex items-center justify-between border-b pb-3">
+                    <h3 class="font-kids text-xl font-bold text-brand-dark">Bentuk-Bentuk Energi di Sekitar Kita</h3>
+                    <button onclick="speakText('Energi adalah kemampuan untuk melakukan usaha atau kerja. Energi tidak dapat diciptakan atau dimusnahkan, tetapi hanya bisa berubah bentuk!')" class="text-xs bg-sky-100 hover:bg-sky-200 text-sky-800 px-3 py-1 rounded-full font-bold">
+                        🔊 Suara
+                    </button>
+                </div>
+                <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
+                    <strong>Energi</strong> adalah kemampuan untuk melakukan aktivitas atau kerja. Benda-benda di sekitar kita membutuhkan energi agar dapat berfungsi!
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                    <div class="card-bounce bg-amber-50 p-4 rounded-2xl border border-amber-200">
+                        <div class="text-3xl mb-2">☀️</div>
+                        <h4 class="font-kids font-bold text-amber-900">Energi Panas (Kalor)</h4>
+                        <p class="text-xs text-slate-600 mt-1">Berasal dari benda berpijar atau panas. Contoh: Matahari, api, dan kompor.</p>
+                    </div>
+                    <div class="card-bounce bg-yellow-50 p-4 rounded-2xl border border-yellow-200">
+                        <div class="text-3xl mb-2">💡</div>
+                        <h4 class="font-kids font-bold text-yellow-900">Energi Cahaya</h4>
+                        <p class="text-xs text-slate-600 mt-1">Energi yang dipancarkan oleh sumber cahaya. Contoh: Lampu, senter, dan Matahari.</p>
+                    </div>
+                    <div class="card-bounce bg-blue-50 p-4 rounded-2xl border border-blue-200">
+                        <div class="text-3xl mb-2">⚡</div>
+                        <h4 class="font-kids font-bold text-blue-900">Energi Listrik</h4>
+                        <p class="text-xs text-slate-600 mt-1">Energi yang paling banyak digunakan di rumah untuk menyalakan alat elektronik.</p>
+                    </div>
+                    <div class="card-bounce bg-red-50 p-4 rounded-2xl border border-red-200">
+                        <div class="text-3xl mb-2">🔊</div>
+                        <h4 class="font-kids font-bold text-red-900">Energi Bunyi</h4>
+                        <p class="text-xs text-slate-600 mt-1">Dihasilkan oleh benda yang bergetar. Contoh: Radio, alat musik, dan suara manusia.</p>
+                    </div>
+                    <div class="card-bounce bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+                        <div class="text-3xl mb-2">💨</div>
+                        <h4 class="font-kids font-bold text-emerald-900">Energi Gerak (Kinetik)</h4>
+                        <p class="text-xs text-slate-600 mt-1">Energi yang dimiliki oleh benda yang bergerak. Contoh: Kipas angin dan angin berhembus.</p>
+                    </div>
+                    <div class="card-bounce bg-purple-50 p-4 rounded-2xl border border-purple-200">
+                        <div class="text-3xl mb-2">🍎</div>
+                        <h4 class="font-kids font-bold text-purple-900">Energi Kimia</h4>
+                        <p class="text-xs text-slate-600 mt-1">Tersimpan dalam bahan kimia. Contoh: Makanan yang kita makan dan baterai.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content 2 -->
+            <div id="tab2Content" class="materi-content hidden bg-white rounded-3xl p-6 shadow-md border border-sky-100 space-y-4">
+                <div class="flex items-center justify-between border-b pb-3">
+                    <h3 class="font-kids text-xl font-bold text-brand-dark">Perubahan Bentuk Energi (Transformasi Energi)</h3>
+                    <button onclick="speakText('Energi dapat berubah bentuk dari satu bentuk ke bentuk yang lain. Contohnya saat kita menyalakan kipas angin, energi listrik berubah menjadi energi gerak!')" class="text-xs bg-sky-100 hover:bg-sky-200 text-sky-800 px-3 py-1 rounded-full font-bold">
+                        🔊 Suara
+                    </button>
+                </div>
+                <p class="text-slate-600 text-sm sm:text-base">
+                    Di sekitar kita, banyak peralatan yang mengubah satu bentuk energi menjadi bentuk energi lain agar bermanfaat. Yuk coba simulasi kecil ini!
+                </p>
+
+                <!-- Interactive Mini Simulator -->
+                <div class="bg-sky-50 rounded-2xl p-5 border border-sky-200 space-y-4">
+                    <h4 class="font-kids font-bold text-center text-sky-900">Klik Alat di Bawah Untuk Melihat Perubahan Energinya:</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                        <button onclick="showTransform('Kipas Angin', '⚡ Listrik', '💨 Gerak', '🌀 Kipas berputar menyejukkan ruangan!')" class="p-3 bg-white rounded-2xl border hover:border-amber-400 hover:shadow-md transition">
+                            <div class="text-4xl">🌀</div>
+                            <div class="font-bold text-xs mt-2">Kipas Angin</div>
+                        </button>
+                        <button onclick="showTransform('Setrika', '⚡ Listrik', '🔥 Panas', '👕 Menghasilkan panas untuk merapikan pakaian!')" class="p-3 bg-white rounded-2xl border hover:border-amber-400 hover:shadow-md transition">
+                            <div class="text-4xl">👔</div>
+                            <div class="font-bold text-xs mt-2">Setrika</div>
+                        </button>
+                        <button onclick="showTransform('Televisi', '⚡ Listrik', '💡 Cahaya & 🔊 Bunyi', '📺 Menampilkan gambar terang dan suara musik!')" class="p-3 bg-white rounded-2xl border hover:border-amber-400 hover:shadow-md transition">
+                            <div class="text-4xl">📺</div>
+                            <div class="font-bold text-xs mt-2">Televisi</div>
+                        </button>
+                        <button onclick="showTransform('Anak Berlari', '🍎 Kimia (Makanan)', '🏃 Gerak', '🏃‍♂️ Makanan memberi tenaga tubuh untuk berlari!')" class="p-3 bg-white rounded-2xl border hover:border-amber-400 hover:shadow-md transition">
+                            <div class="text-4xl">🏃‍♂️</div>
+                            <div class="font-bold text-xs mt-2">Anak Berlari</div>
+                        </button>
+                    </div>
+
+                    <!-- Display Transformation Outcome -->
+                    <div id="transformBox" class="bg-white p-4 rounded-xl border border-amber-300 text-center font-kids hidden">
+                        <span id="txtTransformTitle" class="font-bold text-amber-800 text-lg"></span>
+                        <div class="flex justify-center items-center space-x-2 my-2 text-base font-bold text-slate-700">
+                            <span id="txtSourceEnergy" class="bg-amber-100 px-3 py-1 rounded-lg"></span>
+                            <span>➡️</span>
+                            <span id="txtTargetEnergy" class="bg-emerald-100 px-3 py-1 rounded-lg"></span>
+                        </div>
+                        <p id="txtTransformDesc" class="text-xs text-slate-500 font-sans"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content 3 -->
+            <div id="tab3Content" class="materi-content hidden bg-white rounded-3xl p-6 shadow-md border border-sky-100 space-y-4">
+                <div class="flex items-center justify-between border-b pb-3">
+                    <h3 class="font-kids text-xl font-bold text-brand-dark">Sumber Energi & Cara Menghemat Energi</h3>
+                    <button onclick="speakText('Kita harus hemat energi agar bumi tetap lestari. Matikan lampu saat siang hari dan matikan kran air setelah digunakan!')" class="text-xs bg-sky-100 hover:bg-sky-200 text-sky-800 px-3 py-1 rounded-full font-bold">
+                        🔊 Suara
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200">
+                        <h4 class="font-kids font-bold text-amber-900 flex items-center space-x-2">
+                            <span>🌱</span>
+                            <span>Sumber Energi Terbarukan</span>
+                        </h4>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                            Sumber energi yang tidak akan pernah habis meskipun digunakan terus-menerus!
+                        </p>
+                        <ul class="text-xs font-semibold text-slate-700 mt-2 space-y-1 list-disc list-inside">
+                            <li>Matahari ☀️ (Sumber energi terbesar bumi)</li>
+                            <li>Angin 💨 (Memutar kincir angin)</li>
+                            <li>Air 🌊 (Pembangkit Listrik Tenaga Air)</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+                        <h4 class="font-kids font-bold text-emerald-900 flex items-center space-x-2">
+                            <span>💡</span>
+                            <span>Aksi Pahlawan Hemat Energi</span>
+                        </h4>
+                        <ul class="text-xs font-semibold text-slate-700 mt-2 space-y-2">
+                            <li class="flex items-center space-x-2 bg-white p-2 rounded-xl border border-emerald-100">
+                                <span>❌💡</span>
+                                <span>Matikan lampu kamar saat siang hari</span>
+                            </li>
+                            <li class="flex items-center space-x-2 bg-white p-2 rounded-xl border border-emerald-100">
+                                <span>🔌</span>
+                                <span>Cabut kabel charger yang tidak terpakai</span>
+                            </li>
+                            <li class="flex items-center space-x-2 bg-white p-2 rounded-xl border border-emerald-100">
+                                <span>💧</span>
+                                <span>Matikan keran air jika bak sudah penuh</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="flex justify-between items-center pt-4">
+                <button onclick="goToScreen(1)" class="px-5 py-2.5 rounded-2xl bg-slate-200 hover:bg-slate-300 font-bold text-sm text-slate-700 transition">
+                    ⬅️ Kembali
+                </button>
+                <button onclick="startQuizGame()" class="pulse-slow px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-slate-900 font-kids text-lg font-bold shadow-lg transition flex items-center space-x-2">
+                    <span>Lanjut ke Game & Latihan Soal! 🎮</span>
+                    <i class="fas fa-play"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: GAME & LATIHAN SOAL -->
+        <section id="screen3" class="hidden space-y-6">
+            <!-- Game Status Header -->
+            <div class="bg-white rounded-3xl p-5 shadow-md border border-sky-100 flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <span id="playerAvatar" class="text-3xl">🚀</span>
+                    <div>
+                        <div id="playerDisplayName" class="font-kids font-bold text-slate-800">Pemain</div>
+                        <div class="text-xs text-slate-500 font-semibold">Petualangan Energi SD</div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="text-center">
+                        <div class="text-xs text-slate-400 uppercase font-bold">Soal</div>
+                        <div id="quizProgress" class="font-kids text-lg font-bold text-brand-blue">1 / 5</div>
+                    </div>
+                    <div class="text-center bg-amber-50 px-3 py-1 rounded-2xl border border-amber-200">
+                        <div class="text-xs text-amber-600 uppercase font-bold">Skor</div>
+                        <div id="quizScoreDisplay" class="font-kids text-xl font-bold text-amber-600">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border border-sky-100 relative">
+                <!-- Question Text Header & Voice Read Button -->
+                <div class="flex justify-between items-start gap-3 mb-6">
+                    <h3 id="questionText" class="font-kids text-lg sm:text-xl font-bold text-slate-800 leading-snug">
+                        Memuat pertanyaan...
+                    </h3>
+                    <button onclick="speakCurrentQuestion()" class="shrink-0 bg-amber-400 hover:bg-amber-500 text-slate-900 p-2.5 rounded-2xl shadow transition" title="Dengarkan Soal">
+                        <i class="fas fa-volume-high text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Interactive Question Area (Dynamic MC or Matching) -->
+                <div id="optionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Dynamic Options Inserted Here -->
+                </div>
+
+                <!-- Instant Feedback Popup -->
+                <div id="feedbackBox" class="mt-6 p-4 rounded-2xl font-kids text-center hidden">
+                    <div id="feedbackTitle" class="text-lg font-bold mb-1"></div>
+                    <div id="feedbackDesc" class="text-sm font-sans"></div>
+                    <button onclick="nextQuestion()" id="btnNextQuestion" class="mt-3 px-6 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition">
+                        Soal Berikutnya ➡️
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: SKOR AKHIR -->
+        <section id="screen4" class="hidden bg-white rounded-3xl p-8 shadow-xl border border-sky-100 text-center space-y-6">
+            <div class="text-6xl animate-bounce" id="scoreEmoji">🏆</div>
+            <div>
+                <span class="bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Hasil Belajar</span>
+                <h2 class="font-kids text-3xl font-bold text-slate-800 mt-2">Selamat, <span id="finalStudentName">Siswa</span>!</h2>
+                <p id="scoreTagline" class="text-slate-500 text-sm mt-1">Kamu telah menyelesaikan Petualangan Energi!</p>
+            </div>
+
+            <!-- Score Big Badge -->
+            <div class="max-w-xs mx-auto bg-gradient-to-tr from-amber-300 via-yellow-200 to-amber-100 p-6 rounded-3xl border-4 border-amber-400 shadow-inner space-y-2">
+                <div class="text-xs text-amber-900 font-bold uppercase">Total Skor Kamu</div>
+                <div id="finalScoreVal" class="font-kids text-6xl font-bold text-amber-900">100</div>
+                <div id="starContainer" class="text-2xl text-amber-500">
+                    ⭐⭐⭐
+                </div>
+            </div>
+
+            <!-- Summary Statistics -->
+            <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+                <div class="bg-emerald-50 p-3 rounded-2xl border border-emerald-200">
+                    <div class="text-xs text-emerald-600 font-bold">Jawaban Benar</div>
+                    <div id="correctCount" class="font-kids text-2xl font-bold text-emerald-700">0</div>
+                </div>
+                <div class="bg-red-50 p-3 rounded-2xl border border-red-200">
+                    <div class="text-xs text-red-600 font-bold">Jawaban Salah</div>
+                    <div id="wrongCount" class="font-kids text-2xl font-bold text-red-700">0</div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center gap-3 pt-4">
+                <button onclick="startQuizGame()" class="px-5 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 font-bold text-slate-700 text-sm transition">
+                    🔄 Ulangi Kuis
+                </button>
+                <button onclick="generateCertificate()" class="pulse-slow px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-slate-900 font-kids text-lg font-bold shadow-lg transition flex items-center justify-center space-x-2">
+                    <i class="fas fa-certificate"></i>
+                    <span>Cetak Sertifikat Saya!📜</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 5: SERTIFIKAT PENGHARGAAN -->
+        <section id="screen5" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-sky-100 space-y-6 text-center">
+            <div>
+                <h2 class="font-kids text-2xl sm:text-3xl font-bold text-slate-800">Sertifikat Kelulusan 🏅</h2>
+                <p class="text-slate-500 text-sm">Bukti prestasi kamu dalam menguasai Materi Energi Kelas 4 SD!</p>
+            </div>
+
+            <!-- Canvas Container for Certificate -->
+            <div class="overflow-x-auto flex justify-center py-2">
+                <canvas id="certCanvas" width="800" height="560" class="max-w-full rounded-2xl shadow-lg border-2 border-amber-300"></canvas>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+                <button onclick="downloadCertificate()" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-2xl text-sm shadow flex items-center space-x-2 transition">
+                    <i class="fas fa-download"></i>
+                    <span>Unduh Gambar Sertifikat (PNG)</span>
+                </button>
+                <button onclick="printCertificate()" class="px-6 py-3 bg-brand-blue hover:bg-sky-700 text-white font-bold rounded-2xl text-sm shadow flex items-center space-x-2 transition">
+                    <i class="fas fa-print"></i>
+                    <span>Cetak Sertifikat</span>
+                </button>
+                <button onclick="goToScreen(1)" class="px-5 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-2xl text-sm transition">
+                    🏠 Halaman Utama
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // APP STATE
+        let studentData = {
+            name: 'Petualang Cilik',
+            avatar: '🚀',
+            score: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0
+        };
+
+        let currentQuestionIdx = 0;
+        let isVoiceEnabled = true;
+
+        // WEB AUDIO API SYNTHESIZER FOR SOUND EFFECTS (No external audio file dependencies)
+        const AudioFX = {
+            ctx: null,
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            },
+            playCorrect() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.3); // C6
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            },
+            playWrong() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now); // A3
+                osc.frequency.setValueAtTime(164.81, now + 0.15); // E3
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            },
+            playClick() {
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            },
+            playFanfare() {
+                this.init();
+                const notes = [523.25, 659.25, 783.99, 1046.50, 880, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const now = this.ctx.currentTime + (idx * 0.12);
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                });
+            }
+        };
+
+        // SPEECH SYNTHESIS ENGINE (Indonesian Voice)
+        function speakText(text) {
+            if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+
+            window.speechSynthesis.cancel(); // Stop ongoing speech
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.pitch = 1.25; // Friendly, energetic child tone
+            utterance.rate = 0.95; // Clear reading speed for students
+
+            // Try to select Indonesian voice if available
+            const voices = window.speechSynthesis.getVoices();
+            const idVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID'));
+            if (idVoice) {
+                utterance.voice = idVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleVoiceMaster() {
+            isVoiceEnabled = !isVoiceEnabled;
+            const icon = document.getElementById('iconVoice');
+            const txt = document.getElementById('txtVoiceState');
+            if (isVoiceEnabled) {
+                icon.className = "fas fa-volume-high text-amber-600";
+                txt.textContent = "Suara: ON";
+                speakText("Suara narator diaktifkan!");
+            } else {
+                window.speechSynthesis.cancel();
+                icon.className = "fas fa-volume-xmark text-slate-400";
+                txt.textContent = "Suara: OFF";
+            }
+        }
+
+        const quizQuestions = [
+            {
+                question: "1. Ketika Ibu menyalakan lampu meja belajar, terjadi perubahan energi apa ya?",
+                options: [
+                    { text: "⚡ Listrik ➡️ 💡 Cahaya & 🔥 Panas", correct: true },
+                    { text: "🍎 Kimia ➡️ 💨 Gerak", correct: false },
+                    { text: "🔊 Bunyi ➡️ ⚡ Listrik", correct: false },
+                    { text: "☀️ Cahaya ➡️ 🍎 Kimia", correct: false }
+                ],
+                explanation: "Lampu dialiri listrik sehingga menghasilkan cahaya terang dan sedikit panas!"
+            },
+            {
+                question: "2. Alat musik gendang yang dipukul menghasilkan energi...",
+                options: [
+                    { text: "Energi Cahaya", correct: false },
+                    { text: "Energi Bunyi", correct: true },
+                    { text: "Energi Listrik", correct: false },
+                    { text: "Energi Kimia", correct: false }
+                ],
+                explanation: "Gendang yang dipukul akan bergetar dan menghasilkan getaran berupa energi bunyi!"
+            },
+            {
+                question: "3. Dari mana tubuh manusia mendapatkan energi untuk berlari dan belajar?",
+                options: [
+                    { text: "Dari baterai HP", correct: false },
+                    { text: "Dari aliran listrik rumah", correct: false },
+                    { text: "Dari makanan & minuman yang kita konsumsi", correct: true },
+                    { text: "Dari sinar lampu ruangan", correct: false }
+                ],
+                explanation: "Makanan mengandung energi kimia yang diolah tubuh menjadi energi gerak!"
+            },
+            {
+                question: "4. Manakah contoh perbuatan HEMAT ENERGI di rumah?",
+                options: [
+                    { text: "Menyalakan lampu saat siang hari terang", correct: false },
+                    { text: "Membiarkan keran air terus mengalir", correct: false },
+                    { text: "Mematikan TV saat tidak ditonton", correct: true },
+                    { text: "Membuka kulkas terlalu lama", correct: false }
+                ],
+                explanation: "Mematikan peralatan listrik yang tidak terpakai menjaga agar tidak membuang energi!"
+            },
+            {
+                question: "5. Sumber energi terbarukan yang merupakan sumber energi terbesar di bumi adalah...",
+                options: [
+                    { text: "☀️ Matahari", correct: true },
+                    { text: "🔋 Baterai", correct: false },
+                    { text: "🛢️ Minyak Bumi", correct: false },
+                    { text: "🕯️ Lilin", correct: false }
+                ],
+                explanation: "Matahari memancarkan energi cahaya dan panas yang melimpah dan tidak akan habis!"
+            }
+        ];
+
+        function selectAvatar(emoji, btn) {
+            AudioFX.playClick();
+            document.querySelectorAll('.avatar-btn').forEach(b => {
+                b.classList.remove('border-amber-400', 'bg-amber-50');
+                b.classList.add('border-slate-200', 'bg-slate-50');
+            });
+            btn.classList.remove('border-slate-200', 'bg-slate-50');
+            btn.classList.add('border-amber-400', 'bg-amber-50');
+            studentData.avatar = emoji;
+        }
+
+        function startLearning() {
+            AudioFX.playClick();
+            const input = document.getElementById('inputStudentName');
+            const name = input.value.trim();
+            if (!name) {
+                alert('Tolong ketikkan namamu dulu ya!');
+                input.focus();
+                return;
+            }
+            studentData.name = name;
+            document.getElementById('displayStudentName1').textContent = name;
+            document.getElementById('playerDisplayName').textContent = name;
+            document.getElementById('playerAvatar').textContent = studentData.avatar;
+
+            goToScreen(2);
+            speakText(`Halo ${name}! Yuk pelajari materi energi berikut ini!`);
+        }
+
+        function goToScreen(screenNum) {
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`screen${i}`).classList.add('hidden');
+                const st = document.getElementById(`st${i}`);
+                if (st) {
+                    st.className = i === screenNum ?
+                        "px-2 py-1 bg-amber-400 text-white rounded-lg shadow" :
+                        "px-2 py-1 bg-slate-200 rounded-lg";
+                }
+            }
+            document.getElementById(`screen${screenNum}`).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function switchTabMateri(tabId) {
+            AudioFX.playClick();
+            document.querySelectorAll('.tab-materi-btn').forEach(b => {
+                b.className = "tab-materi-btn px-4 py-2 font-kids font-bold text-sm sm:text-base rounded-2xl bg-white text-slate-600 hover:bg-sky-100";
+            });
+            document.querySelectorAll('.materi-content').forEach(c => c.classList.add('hidden'));
+
+            if (tabId === 'tab1') {
+                document.getElementById('btnTab1').className = "tab-materi-btn px-4 py-2 font-kids font-bold text-sm sm:text-base rounded-2xl bg-amber-400 text-slate-900 shadow";
+                document.getElementById('tab1Content').classList.remove('hidden');
+            } else if (tabId === 'tab2') {
+                document.getElementById('btnTab2').className = "tab-materi-btn px-4 py-2 font-kids font-bold text-sm sm:text-base rounded-2xl bg-amber-400 text-slate-900 shadow";
+                document.getElementById('tab2Content').classList.remove('hidden');
+            } else if (tabId === 'tab3') {
+                document.getElementById('btnTab3').className = "tab-materi-btn px-4 py-2 font-kids font-bold text-sm sm:text-base rounded-2xl bg-amber-400 text-slate-900 shadow";
+                document.getElementById('tab3Content').classList.remove('hidden');
+            }
+        }
+
+        function showTransform(title, source, target, desc) {
+            AudioFX.playClick();
+            const box = document.getElementById('transformBox');
+            box.classList.remove('hidden');
+            document.getElementById('txtTransformTitle').textContent = `Perubahan Energi: ${title}`;
+            document.getElementById('txtSourceEnergy').textContent = source;
+            document.getElementById('txtTargetEnergy').textContent = target;
+            document.getElementById('txtTransformDesc').textContent = desc;
+
+            speakText(`${title} mengubah ${source} menjadi ${target}. ${desc}`);
+        }
+
+        function speakMateriSummary() {
+            speakText("Energi adalah kemampuan melakukan usaha. Energi listrik dapat berubah menjadi cahaya, panas, bunyi, dan gerak. Ingat untuk selalu menghemat energi ya!");
+        }
+
+        function startQuizGame() {
+            AudioFX.playClick();
+            currentQuestionIdx = 0;
+            studentData.score = 0;
+            studentData.correctAnswers = 0;
+            studentData.wrongAnswers = 0;
+
+            document.getElementById('quizScoreDisplay').textContent = '0';
+            goToScreen(3);
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = quizQuestions[currentQuestionIdx];
+            document.getElementById('quizProgress').textContent = `${currentQuestionIdx + 1} / ${quizQuestions.length}`;
+            document.getElementById('questionText').textContent = q.question;
+
+            const feedback = document.getElementById('feedbackBox');
+            feedback.classList.add('hidden');
+
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50 font-kids text-slate-700 transition shadow-sm flex items-center space-x-3";
+                btn.onclick = () => checkAnswer(opt, btn, q.explanation);
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-xl bg-slate-100 border flex items-center justify-center font-bold text-slate-500 shrink-0">${String.fromCharCode(65 + idx)}</span>
+                    <span class="text-sm sm:text-base">${opt.text}</span>
+                `;
+                container.appendChild(btn);
+            });
+
+            speakCurrentQuestion();
+        }
+
+        function speakCurrentQuestion() {
+            const q = quizQuestions[currentQuestionIdx];
+            speakText(q.question);
+        }
+
+        function checkAnswer(selectedOpt, btnElement, explanation) {
+            // Disable all option buttons
+            const allBtns = document.querySelectorAll('#optionsContainer button');
+            allBtns.forEach(b => b.disabled = true);
+
+            const feedback = document.getElementById('feedbackBox');
+            const fbTitle = document.getElementById('feedbackTitle');
+            const fbDesc = document.getElementById('feedbackDesc');
+
+            feedback.classList.remove('hidden', 'bg-emerald-100', 'bg-red-100', 'border-emerald-300', 'border-red-300');
+
+            if (selectedOpt.correct) {
+                AudioFX.playCorrect();
+                btnElement.classList.remove('border-slate-200', 'hover:bg-amber-50');
+                btnElement.classList.add('border-emerald-500', 'bg-emerald-100', 'text-emerald-900');
+
+                studentData.score += 20;
+                studentData.correctAnswers += 1;
+                document.getElementById('quizScoreDisplay').textContent = studentData.score;
+
+                feedback.classList.add('bg-emerald-100', 'border', 'border-emerald-300');
+                fbTitle.className = "text-lg font-bold text-emerald-800";
+                fbTitle.textContent = "🎉 Hebat sekali! Jawabannya Benar!";
+                fbDesc.textContent = explanation;
+
+                speakText("Hebat sekali! Jawabannya benar!");
+            } else {
+                AudioFX.playWrong();
+                btnElement.classList.remove('border-slate-200');
+                btnElement.classList.add('border-red-500', 'bg-red-100', 'text-red-900');
+
+                studentData.wrongAnswers += 1;
+
+                feedback.classList.add('bg-red-100', 'border', 'border-red-300');
+                fbTitle.className = "text-lg font-bold text-red-800";
+                fbTitle.textContent = "😅 Belum Tepat, Semangat!";
+                fbDesc.textContent = explanation;
+
+                speakText("Belum tepat. Mari pelajari penjelasannya!");
+            }
+        }
+
+        function nextQuestion() {
+            AudioFX.playClick();
+            currentQuestionIdx++;
+            if (currentQuestionIdx < quizQuestions.length) {
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            AudioFX.playFanfare();
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            document.getElementById('finalStudentName').textContent = studentData.name;
+            document.getElementById('finalScoreVal').textContent = studentData.score;
+            document.getElementById('correctCount').textContent = studentData.correctAnswers;
+            document.getElementById('wrongCount').textContent = studentData.wrongAnswers;
+
+            const emoji = document.getElementById('scoreEmoji');
+            const tagline = document.getElementById('scoreTagline');
+            const stars = document.getElementById('starContainer');
+
+            if (studentData.score >= 80) {
+                emoji.textContent = '🏆';
+                stars.textContent = '⭐⭐⭐';
+                tagline.textContent = 'Luar biasa! Kamu adalah Master Pahlawan Energi!';
+                speakText(`Selamat ${studentData.name}! Skormu ${studentData.score}. Kamu hebat sekali!`);
+            } else if (studentData.score >= 60) {
+                emoji.textContent = '🌟';
+                stars.textContent = '⭐⭐';
+                tagline.textContent = 'Bagus sekali! Penguasaan energimu sudah oke!';
+                speakText(`Selamat ${studentData.name}! Skormu ${studentData.score}. Bagus sekali!`);
+            } else {
+                emoji.textContent = '👍';
+                stars.textContent = '⭐';
+                tagline.textContent = 'Tetap semangat! Yuk baca materi dan coba kuis lagi!';
+                speakText(`Selamat ${studentData.name}! Kamu telah menyelesaikan kuis.`);
+            }
+
+            goToScreen(4);
+        }
+
+        function generateCertificate() {
+            AudioFX.playClick();
+            goToScreen(5);
+
+            const canvas = document.getElementById('certCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Background & Gradient
+            const grad = ctx.createLinearGradient(0, 0, 800, 560);
+            grad.addColorStop(0, '#ffffff');
+            grad.addColorStop(1, '#f0f9ff');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 800, 560);
+
+            // Border Design
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 10;
+            ctx.strokeRect(20, 20, 760, 520);
+
+            ctx.strokeStyle = '#0284c7';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(32, 32, 736, 496);
+
+            // Header Title
+            ctx.fillStyle = '#073b4c';
+            ctx.font = 'bold 34px "Fredoka", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('SERTIFIKAT PENGHARGAAN', 400, 90);
+
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 18px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('PETUALANGAN ENERGI IPAS KELAS 4 - FASE B', 400, 125);
+
+            // Divider Line
+            ctx.beginPath();
+            ctx.moveTo(250, 140);
+            ctx.lineTo(550, 140);
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Recipient
+            ctx.fillStyle = '#64748b';
+            ctx.font = '16px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('Diberikan secara bangga kepada:', 400, 180);
+
+            // Student Name
+            ctx.fillStyle = '#0369a1';
+            ctx.font = 'bold 36px "Fredoka", sans-serif';
+            ctx.fillText(studentData.name.toUpperCase(), 400, 230);
+
+            // Description Body
+            ctx.fillStyle = '#334155';
+            ctx.font = '16px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('Telah berhasil mempelajari Materi Energi & Perubahannya', 400, 280);
+            ctx.fillText(`serta meraih nilai kuis sebesar ${studentData.score} dari 100`, 400, 310);
+
+            // Badge Graphic
+            ctx.beginPath();
+            ctx.arc(400, 380, 45, 0, Math.PI * 2);
+            ctx.fillStyle = '#fef3c7';
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#f59e0b';
+            ctx.stroke();
+
+            ctx.fillStyle = '#d97706';
+            ctx.font = 'bold 28px "Fredoka", sans-serif';
+            ctx.fillText('⚡ 100', 400, 390);
+
+            // Footer Details
+            const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            ctx.fillStyle = '#64748b';
+            ctx.font = '14px "Plus Jakarta Sans", sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`Tanggal: ${today}`, 60, 480);
+
+            ctx.textAlign = 'right';
+            ctx.fillText('Guru/Pengajar IPAS Kelas 4', 740, 480);
+
+            // Signature Line
+            ctx.beginPath();
+            ctx.moveTo(580, 460);
+            ctx.lineTo(740, 460);
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        function downloadCertificate() {
+            AudioFX.playClick();
+            const canvas = document.getElementById('certCanvas');
+            const link = document.createElement('a');
+            link.download = `Sertifikat_Energi_${studentData.name.replace(/\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function printCertificate() {
+            AudioFX.playClick();
+            const canvas = document.getElementById('certCanvas');
+            const dataUrl = canvas.toDataURL('image/png');
+            const printWin = window.open('', '_blank');
+            printWin.document.write(`
+                <html>
+                    <head><title>Cetak Sertifikat - ${studentData.name}</title></head>
+                    <body style="margin:0; flex justify-content:center; align-items:center; display:flex; height:100vh;">
+                        <img src="${dataUrl}" style="max-width:100%; height:auto;" onload="window.print();window.close();"/>
+                    </body>
+                </html>
+            `);
+            printWin.document.close();
+        }
+
+        // Initialize voice list on load
+        window.addEventListener('load', () => {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    window.speechSynthesis.getVoices();
+                };
+            }
+        });
+    </script>
+</body>
+</html>
